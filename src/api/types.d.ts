@@ -37,6 +37,10 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface RegisterForm extends RegisterRequest {
+  passwordConfirm: string;
+}
+
 /** 交互流程返回的重定向信息 */
 export interface InteractionRedirect {
   redirect: string;

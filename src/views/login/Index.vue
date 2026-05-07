@@ -1,50 +1,62 @@
 <script setup lang="ts">
-import type { LoginRequestBody } from '@/api/admin/home/types';
 import type { Rule } from 'ant-design-vue/es/form';
+import type { ApiResponse, InteractionRedirect, LoginRequest } from '@/api/types.d.ts';
 
 const route = useRoute();
 
-const submittingDisabled = ref(false);
+const loading = ref(false);
+const errorMsg = ref('');
 
-const loginForm = reactive<LoginRequestBody>({
-  userName: '',
+const formData = reactive<LoginRequest>({
+  username: '',
   password: '',
 });
 
 const loginFormRules: Record<string, Rule[]> = {
-  userName: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 };
 
 const loginFormRef = ref(null) as Ref<Element | null>;
 const usernameRef = ref(null) as Ref<Element | null>;
 
-const handleSubmitLogin = async (formData: LoginRequestBody) => {
-  submittingDisabled.value = true;
+// 从 URL 查询参数中获取 uid（OIDC 交互会话 ID）
+const uid = computed(() => route.query.uid as string || '');
+
+const handleSubmitLogin = async (formData: LoginRequest) => {
+  if (!uid.value) {
+    errorMsg.value = '缺少交互会话标识，请从业务系统重新发起登录';
+    return;
+  }
+  loading.value = true;
   message.loading({
     content: '正在登录中，请稍候',
     key: SYS_LOADING_KEY,
     duration: 0,
   });
-  login(formData).then(res => {
-    if (res.Success) {
-      const tokenRes = res.Data!;
-      const { setToken } = useTokenStore();
-      setToken(tokenRes);
-      router.replace({ path: '/', query: route.query });
+  login(uid.value, formData).then((res: ApiResponse<InteractionRedirect>) => {
+    if (res.success && res.data?.redirect) {
+      // 登录成功，跳转到后端返回的重定向地址
+      console.log(res.data.redirect);
+      // window.location.href = res.data.redirect;
+      // window.open(res.data.redirect, '_blank');
+      // window.location.href = res.data.redirect.replace(
+      //   'http://localhost:8190',
+      //   window.location.origin +'/oidc-api'
+      // );
     } else {
       message.error({
-        content: res.Msg,
+        content: 'msg' in res ? res.msg : '登录失败',
         key: SYS_LOADING_KEY,
       });
-      submittingDisabled.value = false;
+      loading.value = false;
     }
   }).catch(() => {
     message.error({
       content: '登录失败',
       key: SYS_LOADING_KEY,
     });
-    submittingDisabled.value = false;
+    loading.value = false;
   });
 };
 
@@ -57,8 +69,8 @@ const userNameColorClass = ref<'' | 'primary' | 'warning'>('');
 const passwordColorClass = ref<'' | 'primary' | 'warning'>('');
 
 // 用于标记 input active 状态
-const userNameIsActive = ref(Boolean(loginForm.userName));
-const passwordIsActive = ref(Boolean(loginForm.password));
+const userNameIsActive = ref(Boolean(formData.username));
+const passwordIsActive = ref(Boolean(formData.password));
 
 /**
  * 表单校验时，根据校验结果改变各字段高亮色
@@ -66,7 +78,7 @@ const passwordIsActive = ref(Boolean(loginForm.password));
  * @param status
  */
 const handleValidate = (name: string | number | string[] | number[], status: boolean) => {
-  if (name === 'userName') {
+  if (name === 'username') {
     uActiveColor = status ? 'primary' : 'warning';
   } else if (name === 'password') {
     pActiveColor = status ? 'primary' : 'warning';
@@ -83,11 +95,11 @@ const handleValidate = (name: string | number | string[] | number[], status: boo
  * @param e
  */
 const handleInputMEnter = (e: Event) => {
-  if (submittingDisabled.value) return;
+  if (loading.value) return;
   const domId = (e.target as Element).id;
-  if (domId === 'userName' && loginForm.userName !== '') {
+  if (domId === 'username' && formData.username !== '') {
     userNameColorClass.value = uActiveColor;
-  } else if (domId === 'password-cont' && loginForm.password !== '') {
+  } else if (domId === 'password-cont' && formData.password !== '') {
     passwordColorClass.value = pActiveColor;
   }
 };
@@ -101,7 +113,7 @@ const handleInputMLeave = (e: Event) => {
   const domId = (e.target as Element).id;
   if (document.activeElement!.id === domId
     || (document.activeElement!.id === 'password' && domId === 'password-cont')) return;
-  if (domId === 'userName') {
+  if (domId === 'username') {
     userNameColorClass.value = '';
   } else if (domId === 'password-cont') {
     passwordColorClass.value = '';
@@ -114,7 +126,7 @@ const handleInputMLeave = (e: Event) => {
  */
 const handleInputFocus = (e: Event) => {
   const domId = (e.target as Element).id;
-  if (domId === 'userName') {
+  if (domId === 'username') {
     userNameColorClass.value = uActiveColor;
     userNameIsActive.value = true;
   } else if (domId === 'password') {
@@ -130,22 +142,22 @@ const handleInputFocus = (e: Event) => {
  */
 const handleInputBlur = (e: Event) => {
   const domId = (e.target as Element).id;
-  if (domId === 'userName') {
+  if (domId === 'username') {
     userNameColorClass.value = '';
-    if (loginForm.userName === '') {
+    if (formData.username === '') {
       userNameIsActive.value = false;
     }
   } else if (domId === 'password') {
     passwordColorClass.value = '';
-    if (loginForm.password === '') {
+    if (formData.password === '') {
       passwordIsActive.value = false;
     }
   }
 };
 
 // 注册
-const handleSignIn = () => {
-  message.warn('该功能尚未开放');
+const handleRegister = () => {
+  router.push({ path: '/register', query: route.query });
 };
 
 </script>
@@ -158,27 +170,27 @@ const handleSignIn = () => {
       mt-8
       name="login"
       ref="loginFormRef"
-      :model="loginForm"
+      :model="formData"
       :rules="loginFormRules"
-      :disabled="submittingDisabled"
+      :disabled="loading"
       @validate="handleValidate"
       @finish="handleSubmitLogin"
     >
-      <a-form-item relative name="userName">
+      <a-form-item relative name="username">
         <a-input
-          id="userName"
+          id="username"
           ref="usernameRef"
           class="login-input transparent z-1"
           autofocus
-          autocomplete="userName"
-          v-model:value="loginForm.userName"
+          autocomplete="username"
+          v-model:value="formData.username"
           @mouseenter="handleInputMEnter"
           @mouseleave="handleInputMLeave"
           @focus="handleInputFocus"
           @blur="handleInputBlur"
         />
         <div class="form-label bg-ant.bg-container absolute left-12.5px px-1"
-          :class="[userNameColorClass, {'active': userNameIsActive}]">账号
+          :class="[userNameColorClass, {'active': userNameIsActive}]">用户名
         </div>
       </a-form-item>
       <a-form-item
@@ -190,7 +202,7 @@ const handleSignIn = () => {
           id="password"
           class="login-input transparent z-1"
           autocomplete="current-password"
-          v-model:value="loginForm.password"
+          v-model:value="formData.password"
           @focus="handleInputFocus"
           @blur="handleInputBlur"
         />
@@ -198,15 +210,15 @@ const handleSignIn = () => {
           :class="[passwordColorClass, {'active': passwordIsActive}]">密码
         </div>
       </a-form-item>
-      <!--<a-form-item class="mb-5" name="remember">-->
-      <!--  <a-checkbox v-model:checked="loginForm.remember">记住密码</a-checkbox>-->
-      <!--</a-form-item>-->
+      <a-form-item v-if="errorMsg" class="mb-2">
+        <a-alert :message="errorMsg" type="error" show-icon />
+      </a-form-item>
       <a-form-item class="mt-8 mb-0">
         <a-button login-btn type="primary" html-type="submit">登录</a-button>
       </a-form-item>
       <a-divider>或</a-divider>
       <a-form-item class="m-0">
-        <a-button login-btn @click="handleSignIn">注册账号</a-button>
+        <a-button login-btn @click="handleRegister">注册</a-button>
       </a-form-item>
     </a-form>
   </div>
