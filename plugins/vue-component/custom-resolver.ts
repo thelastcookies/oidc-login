@@ -2,9 +2,8 @@ import type { ComponentResolver, ComponentResolveResult } from 'unplugin-vue-com
 
 export const customResolver: ComponentResolver = {
   type: 'component',
-  resolve: (name: string): ComponentResolveResult => {
-    if (name == 'VueDraggable') {
-      return { name, from: 'vue-draggable-plus' };
-    }
+  resolve: (_name: string): ComponentResolveResult => {
+    // 预留自定义组件解析器
+    return undefined;
   },
 };

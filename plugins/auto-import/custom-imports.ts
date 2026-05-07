@@ -12,22 +12,12 @@ import type { ImportsMap } from 'unplugin-auto-import/types';
  */
 export const customImports: ImportsMap = {
   'axios': [
-    // default imports
-    ['default', 'axios'], // alias imports: import { default as axios } from 'axios',
-  ],
-  'nanoid': [
-    'nanoid', // named imports: import { nanoid } from 'nanoid',
+    ['default', 'axios'],
   ],
   'lodash-es': [
     'cloneDeep',
     'merge',
-    'zip',
     'isArray',
-    'max',
-    'min',
-    'sum',
-    'groupBy',
-    'round',
   ],
   'mitt': [
     ['default', 'mitt'],
@@ -38,7 +28,5 @@ export const customImports: ImportsMap = {
     'theme',
     'message',
     'notification',
-    'Empty',
-    'Tag',
   ],
 };

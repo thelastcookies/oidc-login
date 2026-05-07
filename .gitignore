@@ -131,7 +131,7 @@ dist
 auto-imports.d.ts
 components.d.ts
 
-/web-base/
-/web-base.*
+/oidc-login/
+/oidc-login.*
 
 stats.html

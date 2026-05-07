@@ -26,13 +26,6 @@ export const AutoImportPluginConfig: PluginOption = AutoImport({
     'src/stores/**/*.ts',
     'src/types/**/*.ts',
     'src/utils/**/*.ts',
-    'src/views/**/*.ts',
-    'src/components/common/query-form/*.ts',
-    'src/components/common/inline-edit-table/*.ts',
-    '!src/views/curd/**/*.ts',
-  ],
-  ignoreDts: [
-    'src/views/form/libs',
   ],
   vueTemplate: true,
 });
