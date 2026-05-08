@@ -20,7 +20,7 @@ export default defineConfig(({ command }) => {
           '/oidc-api': {
             target: 'http://localhost:8190',
             changeOrigin: true,
-            rewrite: (path: string) => path.replace(/^\/oidc-api/, '')
+            rewrite: (path: string) => path.replace(/^\/oidc-api/, ''),
           }
         }
       },

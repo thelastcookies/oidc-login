@@ -10,8 +10,6 @@ export const useAppStore = defineStore('app', () => {
   const userAgent = Bowser.getParser(window.navigator.userAgent);
   const deviceType = userAgent.getPlatformType();
 
-  const loginEnable = ref(import.meta.env.APP_LOGIN_ENABLE === 'true');
-
   const message = ref({} as MessageInstance);
   const notification = ref({} as NotificationInstance);
   const modal = ref({} as Omit<ModalStaticFunctions, 'warn'>);
@@ -22,33 +20,11 @@ export const useAppStore = defineStore('app', () => {
     modal.value = staticFunction.modal;
   })();
 
-  /**
-   * signOut 退出登录
-   */
-  const signOut = () => {
-    return new Promise<void>((resolve) => {
-      const actionStore = useActionStore();
-      actionStore.$reset();
-      const userStore = useUserStore();
-      userStore.$reset();
-      const tokenStore = useTokenStore();
-      tokenStore.$reset();
-      if (loginEnable.value) {
-        router.push('/login');
-      } else {
-        parent.window.location.assign('');
-      }
-      resolve();
-    });
-  };
-
   return {
     windowInnerWidth,
     windowInnerHeight,
     userAgent,
     deviceType,
-    loginEnable,
-    signOut,
     message, notification, modal,
   };
 });

@@ -12,8 +12,6 @@ app.use(createPinia());
 
 // router
 import router from '@/router';
-// 导入路由守卫
-import '@/router/guards.ts';
 app.use(router);
 
 // UI框架 ant-design-vue

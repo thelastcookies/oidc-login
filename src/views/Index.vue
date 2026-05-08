@@ -24,10 +24,10 @@ const appTitle = import.meta.env.APP_TITLE;
 
 <style scoped lang="less">
 .login-container {
-  background-image: url("~/login/login-bg.jpg");
+  background-image: url("../assets/images/login/login-bg.jpg");
 
   .form-deco {
-    background-image: url("~/login/login-form-bg.jpg");
+    background-image: url("../assets/images/login/login-form-bg.jpg");
   }
 }
 </style>
