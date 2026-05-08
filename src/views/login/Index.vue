@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Rule } from 'ant-design-vue/es/form';
 import type { ApiResponse, InteractionRedirect, LoginRequest } from '@/api/types.d.ts';
+import { confirm as confirmAuth } from '@/api/index';
 
 const route = useRoute();
 
@@ -20,8 +21,20 @@ const loginFormRules: Record<string, Rule[]> = {
 const loginFormRef = ref(null) as Ref<Element | null>;
 const usernameRef = ref(null) as Ref<Element | null>;
 
-// 从 URL 查询参数中获取 uid（OIDC 交互会话 ID）
+// 从 URL 查询参数中获取 uid 和 prompt 类型
 const uid = computed(() => route.query.uid as string || '');
+const prompt = computed(() => route.query.prompt as string || '');
+
+// 确认授权
+onMounted(() => {
+  if (prompt.value === 'consent' && uid.value) {
+    confirmAuth(uid.value).then((res: ApiResponse<InteractionRedirect>) => {
+      if (res.success && res.data?.redirect) {
+        window.location.href = res.data.redirect;
+      }
+    });
+  }
+});
 
 const handleSubmitLogin = async (formData: LoginRequest) => {
   if (!uid.value) {
@@ -37,13 +50,7 @@ const handleSubmitLogin = async (formData: LoginRequest) => {
   login(uid.value, formData).then((res: ApiResponse<InteractionRedirect>) => {
     if (res.success && res.data?.redirect) {
       // 登录成功，跳转到后端返回的重定向地址
-      console.log(res.data.redirect);
-      // window.location.href = res.data.redirect;
-      // window.open(res.data.redirect, '_blank');
-      // window.location.href = res.data.redirect.replace(
-      //   'http://localhost:8190',
-      //   window.location.origin +'/oidc-api'
-      // );
+      window.location.href = res.data.redirect;
     } else {
       message.error({
         content: 'msg' in res ? res.msg : '登录失败',
