@@ -23,8 +23,14 @@ const requestHandler = async (
     config.url = import.meta.env.APP_API_MOCK_URL + urlProc;
   }
   if (config.token) {
-    const { getToken } = useTokenStore();
-    const token = getToken();
+    // 优先从 OIDC UserManager 获取
+    const oidcUser = await getUser();
+    let token: string | null | undefined;
+    if (oidcUser && !oidcUser.expired) {
+      token = oidcUser.access_token;
+    } else {
+      token = await useTokenStore().getToken();
+    }
     if (token) {
       config.headers.set('Authorization', 'Bearer ' + token);
     } else {
