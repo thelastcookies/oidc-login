@@ -4,6 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 import { UnoCSSPluginConfig } from './unocss';
 import { AutoImportPluginConfig } from './auto-import';
 import { VueComponentPluginConfig } from './vue-component';
+import { BasicSslPluginConfig } from './basic-ssl';
 
 /**
  * 注入 vite 的插件
@@ -21,6 +22,7 @@ export const createVitePlugins = () => {
     UnoCSSPluginConfig,
     AutoImportPluginConfig,
     VueComponentPluginConfig,
+    BasicSslPluginConfig,
   ];
   return vitePluginList;
 };
