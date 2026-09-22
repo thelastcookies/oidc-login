@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Rule } from 'ant-design-vue/es/form';
 import type { ApiResponse, InteractionRedirect, LoginRequest } from '@/api/types.d.ts';
-import { confirm as confirmAuth } from '@/api/index';
+import { AxiosError } from 'axios';
 
 const route = useRoute();
 
@@ -21,20 +21,8 @@ const loginFormRules: Record<string, Rule[]> = {
 const loginFormRef = ref(null) as Ref<Element | null>;
 const usernameRef = ref(null) as Ref<Element | null>;
 
-// 从 URL 查询参数中获取 uid 和 prompt 类型
+// 从 URL 查询参数中获取交互会话标识
 const uid = computed(() => route.query.uid as string || '');
-const prompt = computed(() => route.query.prompt as string || '');
-
-// 确认授权
-onMounted(() => {
-  if (prompt.value === 'consent' && uid.value) {
-    confirmAuth(uid.value).then((res: ApiResponse<InteractionRedirect>) => {
-      if (res.success && res.data?.redirect) {
-        window.location.href = res.data.redirect;
-      }
-    });
-  }
-});
 
 const handleSubmitLogin = async (formData: LoginRequest) => {
   if (!uid.value) {
@@ -58,11 +46,19 @@ const handleSubmitLogin = async (formData: LoginRequest) => {
       });
       loading.value = false;
     }
-  }).catch(() => {
-    message.error({
-      content: '登录失败',
-      key: SYS_LOADING_KEY,
-    });
+  }).catch(e => {
+    if (e instanceof AxiosError) {
+      const res = e.response;
+      message.error({
+        content: 'msg' in res?.data ? res?.data.msg : '登录失败',
+        key: SYS_LOADING_KEY,
+      });
+    } else {
+      message.error({
+        content: '登录失败',
+        key: SYS_LOADING_KEY,
+      });
+    }
     loading.value = false;
   });
 };
