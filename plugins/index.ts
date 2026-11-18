@@ -1,10 +1,10 @@
 import type { PluginOption } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import { UnoCSSPluginConfig } from './unocss';
-import { AutoImportPluginConfig } from './auto-import';
-import { VueComponentPluginConfig } from './vue-component';
-import { BasicSslPluginConfig } from './basic-ssl';
+import { UnoCSSPluginConfig } from './unocss/index.ts';
+import { AutoImportPluginConfig } from './auto-import/index.ts';
+import { VueComponentPluginConfig } from './vue-component/index.ts';
+import { BasicSslPluginConfig } from './basic-ssl/index.ts';
 
 /**
  * 注入 vite 的插件
