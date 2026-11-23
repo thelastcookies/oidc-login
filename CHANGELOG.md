@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/thelastcookies/oidc-login/compare/v1.0.0...v1.1.0) (2026-11-23)
+
+
+### Features
+
+* 新增版权组件 ([714b45a](https://github.com/thelastcookies/oidc-login/commit/714b45ace6b50c69463a67a822d0a83dadf80c6e))
+
 ## 1.0.0 (2026-11-18)
 
 
