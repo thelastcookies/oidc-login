@@ -15,8 +15,6 @@ export const customImports: ImportsMap = {
     ['default', 'axios'],
   ],
   'lodash-es': [
-    'cloneDeep',
-    'merge',
     'isArray',
   ],
   'mitt': [
