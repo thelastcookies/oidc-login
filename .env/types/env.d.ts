@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly APP_TITLE: string;
   // 项目打包生成文件
   readonly APP_BUILD_NAME: string;
+  // 作者
+  readonly APP_AUTHOR: string;
   // 打包时是否开启 sourcemap
   readonly APP_SOURCE_MAP: 'true' | 'false';
   /**
@@ -31,3 +33,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/** 应用版本号，由 vite define 注入，与 package.json 的 version 保持一致 */
+declare const __APP_VERSION__: string;

@@ -19,6 +19,7 @@ const appTitle = import.meta.env.APP_TITLE;
         <div class="form-deco h-full w-full image-bg-cover border-rd-8"></div>
       </div>
     </div>
+    <Copyright />
   </div>
 </template>
 
